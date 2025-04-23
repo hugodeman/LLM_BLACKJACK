@@ -1,25 +1,9 @@
-import {createBrowserRouter, RouterProvider} from 'react-router';
+import Chat from "./Chat";
 
-import Layout from "./Layout.jsx";
-import Chat from "./Chat.jsx";
-
-const router = createBrowserRouter([{
-  element: <Layout />,
-  children: [
-    {
-      path:'/',
-      element:<Chat/>
-    }
-  ]
-}]);
-
-function App() {
-
-  return(
-      <>
-        <RouterProvider router={router}/>
-      </>
+const App = () => {
+  return (
+      <Chat></Chat>
   );
-}
+};
 
-export default App
+export default App;
