@@ -5,7 +5,7 @@ import { AzureChatOpenAI, AzureOpenAIEmbeddings } from "@langchain/openai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 
 const model = new AzureChatOpenAI({
-    temperature: 0.4,
+    temperature: 0.2,
 });
 
 const embeddings = new AzureOpenAIEmbeddings({
@@ -66,7 +66,6 @@ function generateContext({ action, playerCards, dealerCards, hasStood, lastDrawn
     Respond with Markdown formatting. With icons for the suits and a list of the cards per hand. The lists cant have too much space between each item and the text above.\n\n
     
     You answer short. You never start your own game!\n 
-    If a player asks what to do when no cards are drawn, you state that by starting a game you have to place a bet. ex 10 \n
     If a player asks what to do when cards are drawn, you state the total value of the cards and explain that you can press the hit button to draw a card
     to try to get closer to 21. Or the stand button if you think the next card will get you over 21.
     \n\n`;
@@ -119,7 +118,6 @@ app.post('/blackjack', async (req, res) => {
     const { messages, playerCards, dealerCards, hasStood, lastDrawnCard, action, bet } = req.body;
 
     try {
-        const vectorStore = await loadVectorStore();
         const lastUserMessage = messages?.filter(m => m.role === "user").at(-1)?.content || "";
         const relevantDocs = await vectorStore.similaritySearch(lastUserMessage, 3);
         const rules = relevantDocs.map(doc => doc.pageContent).join("\n\n");
@@ -225,6 +223,6 @@ async function loadVectorStore() {
     console.log("Vectorstore geladen.");
 }
 
-// loadVectorStore().then(() => {
-//     app.listen(8000, () => console.log(`Server draait op http://localhost:8000`));
-// });
+loadVectorStore().then(() => {
+    app.listen(8000, () => console.log(`Server draait op http://localhost:8000`));
+});
