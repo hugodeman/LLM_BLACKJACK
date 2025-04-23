@@ -15,7 +15,7 @@ function Chat() {
     const [visibleDealerCards, setVisibleDealerCards] = useState([]);
 
     const [hasStood, setHasStood] = useState(false);
-    let [endpoint, setEndpoint] = useState("http://localhost:8000/blackjack");
+    let [endpoint, setEndpoint] = useState("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack");
 
     const [balance, setBalance] = useState(() => {
         const storedBalance = localStorage.getItem("balance");
@@ -87,7 +87,7 @@ function Chat() {
                 setBet(betAmount)
                 setBalance(prev => prev - betAmount);
 
-                url = "http://localhost:8000/blackjack/start";
+                url = "https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack/start";
                 const startRes = await fetch(url, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -108,7 +108,7 @@ function Chat() {
                 setHasStood(false);
 
                 // stuur extra bericht naar de AI voor het starten van het spel
-                const aiRes = await fetch("http://localhost:8000/blackjack", {
+                const aiRes = await fetch("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -149,7 +149,7 @@ function Chat() {
                     });
                 }
 
-                setEndpoint("http://localhost:8000/blackjack");
+                setEndpoint("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack");
 
             } else {
                 const response = await fetch(url, {
@@ -204,7 +204,7 @@ function Chat() {
 
     const handleHit = async () => {
         try {
-            const res = await fetch("http://localhost:8000/blackjack/hit", {
+            const res = await fetch("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack/hit", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ deckId }),
@@ -213,7 +213,7 @@ function Chat() {
             setPlayerCards(prev => [...prev, data.card]);
 
             // voor feedback na elke kaart van speler
-            const chatRes = await fetch("http://localhost:8000/blackjack", {
+            const chatRes = await fetch("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -262,7 +262,7 @@ function Chat() {
     const handleStand = async () => {
         try {
             setHasStood(true);
-            const res = await fetch("http://localhost:8000/blackjack/stand", {
+            const res = await fetch("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack/stand", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -307,7 +307,7 @@ function Chat() {
                         }
 
                         // voor feedback van dealer kaarten
-                        fetch("http://localhost:8000/blackjack", {
+                        fetch("https://llm-blackjack-h6q3ysrr0-hugo-boths-projects.vercel.app/blackjack", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
