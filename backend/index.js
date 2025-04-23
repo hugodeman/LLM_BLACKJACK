@@ -42,10 +42,6 @@ const calculateHandValue = (cards) => {
     return value;
 };
 
-function calculateWinValue(bet) {
-
-}
-
 function convertMessages(rawMessages) {
     return rawMessages
         .filter(msg => typeof msg.content === "string" && msg.content.trim() !== "")
@@ -123,6 +119,7 @@ app.post('/blackjack', async (req, res) => {
     const { messages, playerCards, dealerCards, hasStood, lastDrawnCard, action, bet } = req.body;
 
     try {
+        const vectorStore = await loadVectorStore();
         const lastUserMessage = messages?.filter(m => m.role === "user").at(-1)?.content || "";
         const relevantDocs = await vectorStore.similaritySearch(lastUserMessage, 3);
         const rules = relevantDocs.map(doc => doc.pageContent).join("\n\n");
@@ -228,6 +225,6 @@ async function loadVectorStore() {
     console.log("Vectorstore geladen.");
 }
 
-loadVectorStore().then(() => {
-    app.listen(8000, () => console.log(`Server draait op http://localhost:8000`));
-});
+// loadVectorStore().then(() => {
+//     app.listen(8000, () => console.log(`Server draait op http://localhost:8000`));
+// });
