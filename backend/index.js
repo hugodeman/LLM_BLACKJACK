@@ -4,7 +4,9 @@ import cors from 'cors';
 import { AzureChatOpenAI, AzureOpenAIEmbeddings } from "@langchain/openai";
 import { FaissStore } from "@langchain/community/vectorstores/faiss";
 
-const model = new AzureChatOpenAI({ temperature: 0.0 });
+const model = new AzureChatOpenAI({
+    temperature: 0.4,
+});
 
 const embeddings = new AzureOpenAIEmbeddings({
     azureOpenAIApiEmbeddingsDeploymentName: process.env.AZURE_EMBEDDING_DEPLOYMENT_NAME
@@ -40,7 +42,10 @@ const calculateHandValue = (cards) => {
     return value;
 };
 
-// ✅ Helper om chatgeschiedenis correct te converteren
+function calculateWinValue(bet) {
+
+}
+
 function convertMessages(rawMessages) {
     return rawMessages
         .filter(msg => typeof msg.content === "string" && msg.content.trim() !== "")
@@ -56,45 +61,66 @@ function convertMessages(rawMessages) {
         .filter(msg => msg !== null);
 }
 
-function generateContext({ action, playerCards, dealerCards, hasStood, lastDrawnCard, rules }) {
-    const playerValue = calculateHandValue(playerCards);
-    const dealerValue = calculateHandValue(dealerCards);
-
-    const formatCards = (cards) => cards.map(c => `${c.value} of ${c.suit}`).join(" and ");
-    const lastCardText = lastDrawnCard ? `${lastDrawnCard.value} of ${lastDrawnCard.suit}` : null;
-
-    const visibleDealer = hasStood
-        ? formatCards(dealerCards)
-        : dealerCards[0]?.value
-            ? `${dealerCards[0].value} of ${dealerCards[0].suit} and one hidden card`
-            : "unknown";
+function generateContext({ action, playerCards, dealerCards, hasStood, lastDrawnCard, rules, bet }) {
 
     let context = `You are a blackjack dealer. The rules are:\n${rules}\n
     Under no circumstances may a card be reshuffled. Once a card is shown it always keeps that value. You may never
-    let the player know what the value of the hidden card is, Unless it is revealed.
+    let the player know what the value of the hidden card is, Unless it is revealed.\n
+    
+    Respond with Markdown formatting. With icons for the suits and a list of the cards per hand. The lists cant have too much space between each item and the text above.\n\n
+    
+    You answer short. You never start your own game!\n 
+    If a player asks what to do when no cards are drawn, you state that by starting a game you have to place a bet. ex 10 \n
+    If a player asks what to do when cards are drawn, you state the total value of the cards and explain that you can press the hit button to draw a card
+    to try to get closer to 21. Or the stand button if you think the next card will get you over 21.
     \n\n`;
 
-    if (action === "start") {
-        context += `The game has started. Player has ${formatCards(playerCards)} (total: ${playerValue}). Dealer shows ${visibleDealer}.
-        You name the cards with there house.`;
-    }
+    if(playerCards) {
+        const playerValue = calculateHandValue(playerCards);
+        const dealerValue = calculateHandValue(dealerCards);
 
-    if (action === "hit") {
-        context += `Player drew ${lastCardText}. Total hand: ${formatCards(playerCards)} (value: ${playerValue}).
-        Name the last drawn card and the new total value of the hand. And only that card, you do not state the full hand anymore.`;
-    }
+        const formatCards = (cards) => cards.map(c => `${c.value} of ${c.suit}`).join(" and ");
+        const lastCardText = lastDrawnCard ? `${lastDrawnCard.value} of ${lastDrawnCard.suit}` : null;
 
-    if (action === "stand") {
-        context += `Player stands. Dealer reveals hand: ${formatCards(dealerCards)} (value: ${dealerValue}).\n`;
-        context += `Compare hands:\n - Player: ${playerValue}\n - Dealer: ${dealerValue}\n`;
-        context += `Announce who wins based on blackjack rules.`;
-    }
+        const visibleDealer = hasStood
+            ? formatCards(dealerCards)
+            : dealerCards[0]?.value
+                ? `${dealerCards[0].value} of ${dealerCards[0].suit} and one hidden card`
+                : "unknown";
 
-    return context;
+
+        if (action === "start") {
+            context += `The game has started. \n The player has bet: ${bet}.
+            Player has ${formatCards(playerCards)} (total: ${playerValue}). Dealer shows ${visibleDealer}.
+        You name the cards with their house.\n\n`;
+        }
+
+        if (action === "hit") {
+            context += `Player drew ${lastCardText}. Total hand: ${formatCards(playerCards)} (value: ${playerValue}).
+        Name the last drawn card and the new total value of the hand. And only that card, you do not state the full hand anymore.\n
+        If the total of the hand is more than 21 you tell the player that he has bust. 
+        If the player has 21 you exaggerate the hand total since blackjack is the best hand in the game. \n\n`;
+        }
+
+        if (action === "stand") {
+            context += `Player stands. Dealer reveals hand: ${formatCards(dealerCards)} (value: ${dealerValue}).\n`;
+            context += `Compare hands:\n - Player: ${playerValue}\n - Dealer: ${dealerValue}\n`;
+            context += `Announce who wins based on blackjack rules.\n
+            If the player didn't bust and has a higher hand than the dealer the player wins.\n
+            If the player busts or the player has a lower handvalue than the dealer, the dealer wins.
+            `;
+            context += `Announce how much money the player has lost or wins. If the player loses he loses hit bet amount.\n
+            If the player wins they get their bet as payout. If the player has 21, they get 1.5 times their bet. the bet amount = ${bet}.`
+        }
+    }
+        return context;
 }
 
 app.post('/blackjack', async (req, res) => {
-    const { messages, playerCards, dealerCards, hasStood, lastDrawnCard, action } = req.body;
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    const { messages, playerCards, dealerCards, hasStood, lastDrawnCard, action, bet } = req.body;
 
     try {
         const lastUserMessage = messages?.filter(m => m.role === "user").at(-1)?.content || "";
@@ -107,7 +133,8 @@ app.post('/blackjack', async (req, res) => {
             dealerCards,
             hasStood,
             lastDrawnCard,
-            rules
+            rules,
+            bet
         });
 
         const chatMessages = [
@@ -115,8 +142,16 @@ app.post('/blackjack', async (req, res) => {
             ...convertMessages(messages)
         ];
 
-        const chat = await model.invoke(chatMessages);
-        res.json({ chat: chat.content });
+        const stream = await model.stream(chatMessages);
+        let ai='';
+
+        for await (const chunk of stream) {
+            await new Promise(resolve => setTimeout(resolve,60));
+            res.write(chunk.content);
+            ai += chunk.content;
+        }
+
+        res.end();
 
     } catch (err) {
         console.error("Fout in /blackjack:", err);
