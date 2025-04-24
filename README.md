@@ -4,7 +4,7 @@ Dit is een LLM project met GPT3.5 voor een blackjack AI chatbot.
 
 Het project is gemaakt met React + tailwind en Express en gebruikt Langchain en AZURE.
 
-* installatie
+* # installatie
 
 Voor het gebruiken van het project moet je een aantal dingen hebben geinstalleerd:
 
@@ -37,7 +37,7 @@ npm run dev
 
 Dit start de back end.
 
-* env
+* # env
 
 De backend gebruikt een .env bestand. Hier moet de API key voor AZURE in. 
 Deze zal je zelf moeten aanmaken in de server directory aangezien er gevoelige informatie staat.
@@ -52,7 +52,7 @@ AZURE_OPENAI_API_EMBEDDINGS_DEPLOYMENT_NAME=...
 
 vervang de ... door je eigen API van AZURE.
 
-* spelen
+* # spelen
 
 De AI werkt het beste als je in het engels praat.
 Start het spel met een inzet plaatsen. Volgens de regels moet het een inzet zijn tussen 2 en 500. Je start met 1000.
@@ -66,7 +66,7 @@ Weet je even niet wat je moet doen of wil je weten wat de regels zijn van blackj
 
 PS. Probeer iets grappigs aan de context te geven. Als je aangeeft in de generateContext() Dat hij naast de dealer Yoda is dan zal de dealer als Yoda terugpraten.
 
-* problemen
+* # problemen
 
 De AI kan nogal eens een gek antwoord geven. Rekenen en dus kaarten tellen / aangeven wie er wint, kan hij nog wel een fout aangeven.
 Geen zorgen! De AI is alleen voor feedback voor het spel van belang. Op de achtergrond wordt goed bijgehouden wie er gewonnen heeft.
