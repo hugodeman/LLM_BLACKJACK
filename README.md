@@ -28,12 +28,20 @@ backend:
 
 Het project werkt alleen lokaal. Open twee terminals in je editor.
 Type in de eerste terminal:
-<pre><code>```cd client npm install npm run start```</code></pre>
+<pre><code>
+  cd client 
+  npm install 
+  npm run start
+</code></pre>
 
 Dit start de front end.
 
 Type in de tweede terminal:
-<pre><code>```cd server npm install npm run dev```</code></pre>
+<pre><code>
+  cd server 
+  npm install 
+  npm run dev
+</code></pre>
 
 Dit start de back end.
 
@@ -64,7 +72,7 @@ Vraag nooit om een spel te starten, maar type een getal tussen 2 en 500 om een s
 Als het spel begonnen in moet je de knoppen gebruiken om verder te spelen (Hit, Stand).
 
 
-Als de winnaar bekend is kan je met de reset knop opnieuw spelen. Of door opniew een inzet te leggen.
+Als de winnaar bekend is kan je met de reset knop opnieuw spelen. Of door opnieuw een inzet te leggen.
 
 
 Weet je even niet wat je moet doen of wil je weten wat de regels zijn van blackjack? Vraag de dealer (:
