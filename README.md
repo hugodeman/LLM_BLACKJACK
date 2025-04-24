@@ -28,18 +28,17 @@ backend:
 
 Het project werkt alleen lokaal. Open twee terminals in je editor.
 Type in de eerste terminal:
-<pre><code> cd client 
-npm install 
+<pre><code>cd client
+npm install
 npm run start
 </code></pre>
 
 Dit start de front end.
 
 Type in de tweede terminal:
-<pre><code>
-  cd server 
-  npm install 
-  npm run dev
+<pre><code>cd server
+npm install
+npm run dev
 </code></pre>
 
 Dit start de back end.
