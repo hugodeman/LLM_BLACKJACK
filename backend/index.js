@@ -54,21 +54,23 @@ function convertMessages(rawMessages) {
                 return null;
             }
         })
+        // voor berichten zonder role
         .filter(msg => msg !== null);
 }
 
 function generateContext({ action, playerCards, dealerCards, hasStood, lastDrawnCard, rules, bet }) {
 
-    let context = `You are a blackjack dealer. The rules are:\n${rules}\n
+    let context = `You area blackjack dealer. The rules are:\n${rules}\n
     Under no circumstances may a card be reshuffled. Once a card is shown it always keeps that value. You may never
     let the player know what the value of the hidden card is, Unless it is revealed.\n
     
-    Respond with Markdown formatting. With icons for the suits and a list of the cards per hand. The lists cant have too much space between each item and the text above.\n\n
+    Respond with Markdown formatting. With icons for the suits and a list of the cards per hand. 
+    The lists cant have too much space between each item and the text above.\n\n
     
-    You answer short. You never start your own game!\n 
-    If a player asks what to do when cards are drawn, you state the total value of the cards and explain that you can press the hit button to draw a card
-    to try to get closer to 21. Or the stand button if you think the next card will get you over 21.
+    You answer short. You NEVER start your own game!\n 
     \n\n`;
+    // If a player asks what to do when cards are drawn, you state the total value of the cards and explain that you can press the hit button to draw a card
+    // to try to get closer to 21. Or the stand button if you think the next card will get you over 21.
 
     if(playerCards) {
         const playerValue = calculateHandValue(playerCards);
@@ -82,7 +84,6 @@ function generateContext({ action, playerCards, dealerCards, hasStood, lastDrawn
             : dealerCards[0]?.value
                 ? `${dealerCards[0].value} of ${dealerCards[0].suit} and one hidden card`
                 : "unknown";
-
 
         if (action === "start") {
             context += `The game has started. \n The player has bet: ${bet}.
@@ -105,7 +106,8 @@ function generateContext({ action, playerCards, dealerCards, hasStood, lastDrawn
             If the player busts or the player has a lower handvalue than the dealer, the dealer wins.
             `;
             context += `Announce how much money the player has lost or wins. If the player loses he loses hit bet amount.\n
-            If the player wins they get their bet as payout. If the player has 21, they get 1.5 times their bet. the bet amount = ${bet}.`
+            If the player wins they get their bet as payout. If the player has 21, they get 1.5 times their bet. 
+            The bet amount = ${bet}.`
         }
     }
         return context;
@@ -170,7 +172,6 @@ app.post('/blackjack/start', async (req, res) => {
         deckId,
         playerCards,
         dealerCards,
-        responseDealerCards: [dealerCards[0], { code: "HIDDEN" }]
     });
 });
 
